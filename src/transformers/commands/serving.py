@@ -542,8 +542,12 @@ class ServeCommand(BaseTransformersCLICommand):
         possible_keys = schema.__mutable_keys__
         unexpected_keys = input_keys - possible_keys
         if unexpected_keys:
-            logger.error(f"Unexpected keys in the request: {unexpected_keys}")
-            raise HTTPException(status_code=422, detail=f"Unexpected keys in the request: {unexpected_keys}")
+            if self.args.input_validation:
+                logger.error(f"Unexpected keys in the request: {unexpected_keys}")
+                raise HTTPException(status_code=422, detail=f"Unexpected keys in the request: {unexpected_keys}")
+            else:
+                logger.warning(f"Unexpected keys in the request: {unexpected_keys}")
+                # Unexpected keys are allowed when input_validation=False
 
         if self.args.input_validation:
             # Validate expected keys
